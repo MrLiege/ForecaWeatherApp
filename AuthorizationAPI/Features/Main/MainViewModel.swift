@@ -29,7 +29,10 @@ private extension MainViewModel {
     func bind() {
         //MARK: - request Token
         let requestToken = input.onAppear.first()
-            .filter { self.userStorage.token == nil}
+            .filter { [weak self] in
+                guard let self = self else { return false }
+                return self.userStorage.token == nil
+            }
             .map { [unowned self] in
                 self.authService.postToken()
                     .materialize()
@@ -44,8 +47,8 @@ private extension MainViewModel {
             .store(in: &cancellables)
         
         requestToken.values()
-            .sink { value in
-                self.userStorage.token = value.accessToken
+            .sink { [weak self] value in
+                self?.userStorage.token = value.accessToken
             }
             .store(in: &cancellables)
     }
