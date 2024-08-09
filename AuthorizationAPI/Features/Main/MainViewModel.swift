@@ -12,11 +12,14 @@ import CombineExt
 final class MainViewModel: ObservableObject {
     let input: Input
     
-    private var authService = AuthAPIService()
+    private var userStorage: UserStorageProtocol
+    private var authService: AuthAPIServiceProtocol
     private var cancellables = Set<AnyCancellable>()
     
-    init() {
+    init(userStorage: UserStorageProtocol = UserStorage.shared, authService: AuthAPIServiceProtocol = AuthAPIService()) {
         self.input = Input()
+        self.userStorage = userStorage
+        self.authService = authService
         bind()
     }
 }
@@ -26,7 +29,10 @@ private extension MainViewModel {
     func bind() {
         //MARK: - request Token
         let requestToken = input.onAppear.first()
-            .filter { UserStorage.shared.token == nil}
+            .filter { [weak self] in
+                guard let self = self else { return false }
+                return self.userStorage.token == nil
+            }
             .map { [unowned self] in
                 self.authService.postToken()
                     .materialize()
@@ -41,8 +47,8 @@ private extension MainViewModel {
             .store(in: &cancellables)
         
         requestToken.values()
-            .sink { value in
-                UserStorage.shared.token = value.accessToken
+            .sink { [weak self] value in
+                self?.userStorage.token = value.accessToken
             }
             .store(in: &cancellables)
     }
