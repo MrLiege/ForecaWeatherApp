@@ -11,8 +11,9 @@ protocol UserStorageProtocol {
     var token: String? { get set }
 }
 
-struct UserStorage: UserStorageProtocol {
-    static var shared = UserStorage()
+
+final class UserStorage: UserStorageProtocol {
+    static let shared = UserStorage()
     
     private let defaults = UserDefaults.standard
     
