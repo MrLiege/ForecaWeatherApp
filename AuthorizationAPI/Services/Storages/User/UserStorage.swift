@@ -7,7 +7,11 @@
 
 import Foundation
 
-struct UserStorage {
+protocol UserStorageProtocol {
+    var token: String? { get set }
+}
+
+struct UserStorage: UserStorageProtocol {
     static var shared = UserStorage()
     
     private let defaults = UserDefaults.standard
@@ -27,6 +31,4 @@ struct UserStorage {
 
 enum UserStorageKey: String {
     case token
-    case login
-    case password
 }

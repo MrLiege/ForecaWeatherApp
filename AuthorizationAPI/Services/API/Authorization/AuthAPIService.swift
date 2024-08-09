@@ -10,7 +10,11 @@ import Moya
 import Combine
 import CombineMoya
 
-final class AuthAPIService {
+protocol AuthAPIServiceProtocol {
+    func postToken() -> AnyPublisher<Token, MoyaError>
+}
+
+final class AuthAPIService: AuthAPIServiceProtocol {
     private let provider = Provider<AuthEndpoint>()
 }
 
